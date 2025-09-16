@@ -74,3 +74,34 @@ const currencies = new Map([
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
+
+const displayAmountMovement = function (amount) {
+  containerMovements.innerHTML = '';
+
+  amount.forEach((movement, index) => {
+    const movementType = movement > 0 ? 'deposit' : 'withdrawal';
+    const data = `
+        <div class="movements__row">
+          <div class="movements__type movements__type--${movementType}">${index + 1} ${movementType}</div>
+          <div class="movements__value">${movement}</div>
+        </div>
+    `;
+
+    containerMovements.insertAdjacentHTML('afterbegin', data)
+  });
+};
+
+const calcDisplayBalance = function (account) {
+  const result = account.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${result}€`;
+}
+
+const createUserNames = function (accs) {
+  accs.forEach(acc => {
+    accs.username = acc.owner.toLowerCase().split(' ').map(name => name[0]).join('')
+  })
+}
+
+calcDisplayBalance(account1.movements)
+createUserNames(accounts)
+displayAmountMovement(account1.movements);
