@@ -61,4 +61,47 @@ console.log(arr); // Output: [1, 'a', 'b', 4, 5]
 console.log(arr.splice(-1)); // Output: [5]
 console.log(arr); // Output: [1, 'a', 'b', 4];
 
+forEach():
+Definition: Executes a provided function once for each array element, will not create new array run over existing ir given array
+Syntax: array.forEach(callback(currentValue [, index [, array]])[, thisArg])
+Example:
+let arr = [1, 2, 3];
+arr.forEach(element => console.log(element * 2));
+// Output:
+// 2
+// 4
+// 6
+
+map():
+Definition: Creates a new array populated with the results of calling a provided function on every element in the calling array.
+Syntax: array.map(callback(currentValue [, index [, array]])[, thisArg])
+Example:
+let arr = [1, 2, 3];
+let newArr = arr.map(element => element * 2);
+console.log(newArr); // Output: [2, 4, 6]
+
+polyfill:
+function myMap(array, callback) {
+  const result = [];
+  for (let i = 0; i < array.length; i++) {
+    if (Object.hasOwn(array, i)) {
+      result.push(callback(array[i], i, array));
+    }
+  }
+  return result;
+}
+
+filter():
+- **Definition:** Creates a new array with all elements that pass the test implemented by the provided function.
+- **Syntax:** `array.filter(callback(element [, index [, array]])[, thisArg])`
+- **Example:**
+  ```javascript
+  let arr = [1, 2, 3, 4, 5];
+  let newArr = arr.filter(element => element % 2 === 0);
+  console.log(newArr); // Output: [2, 4]
+
+
+
+
+
 

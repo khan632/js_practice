@@ -74,7 +74,7 @@ const currencies = new Map([
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
-
+// display bank statement
 const displayAmountMovement = function (amount) {
   containerMovements.innerHTML = '';
 
@@ -82,26 +82,112 @@ const displayAmountMovement = function (amount) {
     const movementType = movement > 0 ? 'deposit' : 'withdrawal';
     const data = `
         <div class="movements__row">
-          <div class="movements__type movements__type--${movementType}">${index + 1} ${movementType}</div>
-          <div class="movements__value">${movement}</div>
+          <div class="movements__type movements__type--${movementType}">${
+      index + 1
+    } ${movementType}</div>
+          <div class="movements__value">${movement}💲</div>
         </div>
     `;
 
-    containerMovements.insertAdjacentHTML('afterbegin', data)
+    containerMovements.insertAdjacentHTML('afterbegin', data);
   });
 };
 
+//Display balance amount
 const calcDisplayBalance = function (account) {
-  const result = account.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${result}€`;
-}
+  account.totalBalance = account.movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${account.totalBalance}💲`;
+};
 
+// Create username of account
 const createUserNames = function (accs) {
   accs.forEach(acc => {
-    accs.username = acc.owner.toLowerCase().split(' ').map(name => name[0]).join('')
-  })
-}
+    acc.username = acc.owner
+      .toLowerCase()
+      .split(' ')
+      .map(name => name[0])
+      .join('');
+  });
+};
 
-calcDisplayBalance(account1.movements)
-createUserNames(accounts)
-displayAmountMovement(account1.movements);
+// Display summary of amount
+const calcDisplaySummary = function (movement, interest) {
+  const inAmount = movement
+    .filter(mov => mov > 0)
+    .reduce((acc, inAm) => inAm + acc, 0);
+  labelSumIn.textContent = `${inAmount}💲`;
+
+  const outAmount = movement
+    .filter(mov => mov < 0)
+    .reduce((acc, outAm) => outAm + acc, 0);
+  labelSumOut.textContent = `${Math.abs(outAmount)}💲`;
+
+  const interestAmt = movement
+    .filter(mov => mov > 0)
+    .map(dep => (dep * interest) / 100)
+    .filter(int => int > 1)
+    .reduce((acc, inAm) => inAm + acc, 0);
+  labelSumInterest.textContent = `${interestAmt}💲`;
+};
+
+// testing
+// calcDisplaySummary(account1.movements);
+// calcDisplayBalance(account1.movements);
+// displayAmountMovement(account1.movements);
+
+createUserNames(accounts);
+
+const updateUI = function (account) {
+  console.log(account, "aaa");
+  
+      // Display bank statement
+    displayAmountMovement(account?.movements)
+    // Display total balance
+    calcDisplayBalance(account);
+    // Display summary
+    calcDisplaySummary(account?.movements, account?.interestRate);
+}
+// Event Handler of Login
+
+let currentUserAccount;
+
+btnLogin.addEventListener('click', function (e) {
+  // Prevent defaul submitting form
+  e.preventDefault();
+
+  currentUserAccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+  console.log(currentUserAccount, accounts, 'cuu');
+
+  if (currentUserAccount?.pin === Number(inputLoginPin.value)) {
+    // Display UI and login message
+
+    labelWelcome.textContent = `Welcome back, ${
+      currentUserAccount.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = 1;
+
+    inputLoginUsername.value = inputLoginPin.value = '';
+    inputLoginPin.blur();
+
+    //Update UI
+    updateUI(currentUserAccount);
+  }
+});
+
+// transfer money handler
+
+btnTransfer.addEventListener('click', function(e) {
+  e.preventDefault();
+  const transferAmount = Number(inputTransferAmount.value);
+  const transferAccountTo = accounts.find(acc => acc.username === inputTransferTo.value);
+  inputTransferTo.value = inputTransferAmount.value = '';
+  if(transferAmount > 0 && transferAccountTo && currentUserAccount.totalBalance > transferAmount && transferAccountTo?.username !== currentUserAccount.username) {
+    currentUserAccount.movements.push(-transferAmount);
+    transferAccountTo.movements.push(transferAmount)
+  }
+
+  // update UI
+  updateUI(currentUserAccount);
+})
