@@ -75,10 +75,12 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
 // display bank statement
-const displayAmountMovement = function (amount) {
+const displayAmountMovement = function (amount, sort = false) {
   containerMovements.innerHTML = '';
 
-  amount.forEach((movement, index) => {
+  const sortedData = sort ? amount.slice().sort((a, b) => a - b) : amount
+
+  sortedData.forEach((movement, index) => {
     const movementType = movement > 0 ? 'deposit' : 'withdrawal';
     const data = `
         <div class="movements__row">
@@ -152,7 +154,7 @@ const updateUI = function (account) {
 let currentUserAccount;
 
 btnLogin.addEventListener('click', function (e) {
-  // Prevent defaul submitting form
+  // Prevent default submitting form
   e.preventDefault();
 
   currentUserAccount = accounts.find(
@@ -190,4 +192,44 @@ btnTransfer.addEventListener('click', function(e) {
 
   // update UI
   updateUI(currentUserAccount);
+});
+
+// loan handler
+
+btnLoan.addEventListener('click', function(e){
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+
+  if(amount > 0 && currentUserAccount.movements.some(mov => mov >= amount * 0.1)) {
+    currentUserAccount.movements.push(amount);
+    updateUI(currentUserAccount);
+  }
+  inputLoanAmount.value = '';
+});
+
+// close account handler
+btnClose.addEventListener('click', function(e){
+  e.preventDefault();
+
+  if(inputCloseUsername.value === currentUserAccount.username && Number(inputClosePin.value) === currentUserAccount.pin) {
+    const index = accounts.findIndex(acc => acc.username === currentUserAccount.username)
+
+    accounts.splice(index, 1);
+
+    containerApp.style.opacity = 0;
+  }
+
+  inputCloseUsername.value = inputClosePin.value = '';
 })
+
+//sorting data
+
+let sorted = false;
+btnSort.addEventListener('click', function(e) {
+  e.preventDefault();
+
+  displayAmountMovement(currentUserAccount.movements, !sorted);
+  sorted = !sorted;
+})
+
